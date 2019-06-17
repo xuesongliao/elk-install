@@ -1,0 +1,18 @@
+[Unit]
+Description=Kibana
+ 
+[Service]
+Type=simple
+EnvironmentFile=-/data/kibana/kibana
+ExecStart=/opt/kibana/bin/kibana "-c /opt/kibana/config/kibana.yml"
+
+User=kibana
+Group=kibana
+Restart=always
+StandardOutput=null
+StandardError=null
+
+WorkingDirectory=/opt/kibana
+
+[Install]
+WantedBy=multi-user.target
