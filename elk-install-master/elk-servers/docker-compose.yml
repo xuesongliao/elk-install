@@ -1,0 +1,103 @@
+version: '2.2'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.4.0
+    container_name: elk-elasticsearch
+    hostname: elasticsearch
+    environment:
+      - TZ=Asia/Shanghai
+      - cluster.name=saas-log
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - network.host=0.0.0.0
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/jvm.options:/usr/share/elasticsearch/config/jvm.options:ro
+    ports:
+      - 9200:9200
+    networks:
+      - elknet
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash-oss:6.4.0
+    container_name: elk-logstash
+    restart: always
+    hostname: logstash
+    environment:
+      - TZ=Asia/Shanghai
+    #ports:
+    #  - "5044:5044"
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./logstash/config/jvm.options:/usr/share/logstash/config/jvm.options:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    links:
+      - elasticsearch
+    depends_on:
+      - elasticsearch
+    networks:
+      - elknet 
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:6.4.0
+    container_name: elk-kibana
+    hostname: kibana
+    environment:
+      - TZ=Asia/Shanghai
+      - log.level=info
+      - server.port=5601
+      - elasticsearch.requestTimeout=300000
+    restart: always
+    #ports:
+    #  - "5601:5601"
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - elknet
+
+  nginx:   
+    image: nginx:1.14.0
+    container_name: elk-nginx
+    hostname: nginx
+    environment: 
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/security:/etc/nginx/security:ro
+      - /data/nginx/logs:/var/log/nginx
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    depends_on:
+      - kibana
+    links:
+      - kibana
+    networks:
+      - elknet
+        
+  
+volumes:
+  esdata1:
+    driver_opts:
+      type: none
+      device: /data/elasticsearch/data
+      o: bind
+
+
+networks:
+  elknet:

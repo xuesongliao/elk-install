@@ -1,0 +1,81 @@
+filebeat.prospectors:
+- type: log
+  paths:
+    - /data/inca.saas/log/saas.log
+  multiline.pattern: '^2'
+  multiline.negate: true
+  multiline.match: after
+  exclude_lines: ['/IBSDIS515/specExport']
+  fields:
+    application_name: inca-saas-set7
+  fields_under_root: true
+
+#- type: log
+  #paths:
+  #  - /var/log/syslog
+  #include_lines: ['INCA', 'incasaas']
+  #fields:
+  #  application_name: inca-crash-history
+  #fields_under_root: true
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+#------------------------------- Redis output ----------------------------------
+#output.redis:
+#  hosts: ["192.9.200.103"]
+#  password: "inca"
+#  key: "logstash-saas"
+#  db: 0
+#  timeout: 5
+
+#----------------------------- Logstash output ---------------------------------
+#output.logstash:
+#  hosts: ["127.0.0.1:5044"]
+
+#------------------------------- Kafka output ----------------------------------
+output.kafka:
+  enabled: true
+  # initial brokers for reading cluster metadata
+  #hosts: ["kafka1:9092", "kafka2:9092", "kafka3:9092"]
+  hosts: ["172.17.37.207:9092"]
+  
+  # message topic selection + partitioning
+  topic: '%{[application_name]}'
+  #topic: 'saas-log'
+  partition.round_robin:
+    reachable_only: false
+
+  #username: ''
+  #password: ''
+
+  metadata:
+    retry.max: 3
+    retry.backoff: 250ms
+    refresh_frequency: 10m
+
+  worker: 1
+  max_retries: 3
+  
+  #bulk_max_size: 2048
+  #timeout: 30s
+  #broker_timeout: 10s
+  #channel_buffer_size: 256
+  #keep_alive: 0
+  required_acks: 1
+  compression: gzip
+  max_message_bytes: 1000000
+  #client_id: beats
+
+  #ssl.enabled: true
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+  #ssl.verification_mode: full
+  #ssl.supported_protocols: [TLSv1.0, TLSv1.1, TLSv1.2]
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+  #ssl.key: "/etc/pki/client/cert.key"
+  #ssl.key_passphrase: ''
+  #ssl.cipher_suites: []
+  #ssl.curve_types: []
+
+

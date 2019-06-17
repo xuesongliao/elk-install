@@ -1,0 +1,22 @@
+[Unit]
+Description=Apache Zookeeper server (Kafka)
+Documentation=http://zookeeper.apache.org
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]
+Type=simple
+EnvironmentFile=/data/kafka/env
+ExecStart=/opt/kafka/bin/zookeeper-server-start.sh /data/kafka/config/zookeeper.properties
+ExecStop=/opt/kafka/bin/zookeeper-server-stop.sh
+
+User=kafka
+Group=kafka
+Restart=on-failure
+StandardOutput=null
+StandardError=null
+SyslogIdentifier=kafka
+WorkingDirectory=/data/kafka
+
+[Install]
+WantedBy=multi-user.target

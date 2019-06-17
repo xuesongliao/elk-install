@@ -1,0 +1,6 @@
+Create Nginx TLS Configure File
+dhparam.pem
+incayun.com.crt
+incayun.com.key
+root_CA_cert_plus_intermediates.pem
+tls_session_ticket.key

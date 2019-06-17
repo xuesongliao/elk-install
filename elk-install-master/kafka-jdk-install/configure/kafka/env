@@ -1,0 +1,5 @@
+JAVA_HOME="/opt/java"
+
+LOG_DIR="/data/kafka/logs"
+KAFKA_HEAP_OPTS="-Xmx1G -Xms1G"
+KAFKA_JVM_PERFORMANCE_OPTS="-server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -Djava.awt.headless=true"

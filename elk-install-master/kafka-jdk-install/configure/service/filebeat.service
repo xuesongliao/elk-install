@@ -1,0 +1,13 @@
+[Unit]
+Description=Beats --> FileBeat
+ 
+ [Service]
+ Type=simple
+ User=filebeat
+ Group=filebeat
+ ExecStart=/opt/filebeat/filebeat -c "/data/filebeat/conf.d/filebeat-to-kifka.yml" -path.logs "/data/filebeat/logs/" -path.data "/data/filebeat/data"
+ Restart=always
+ WorkingDirectory=/
+
+ [Install]
+ WantedBy=multi-user.target
