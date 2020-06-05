@@ -19,6 +19,7 @@ cd init && sh init_system.sh
 
 ### kafka Install
 ```shell
+#如遇包下载的太慢，可联系作者获取
 cd kafka-jdk-install/packets && download.sh
 cd ..&& ./install.sh -k
 ```
